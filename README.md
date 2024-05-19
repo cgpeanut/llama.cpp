@@ -203,6 +203,11 @@ Unless otherwise noted these projects are open-source with permissive licensing:
 *(to have a project listed here, it should clearly state that it depends on `llama.cpp`)*
 
 ---
+### Run any LLM on Distributed Multiple GPUs Locally Using Llama_cpp
+
+https://medium.com/@yash9439/run-any-llm-on-distributed-multiple-gpus-locally-using-llama-cpp-2ff478a0dc3c
+
+$ wget https://huggingface.co/TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF/resolve/main/mixtral-8x7b-instruct-v0.1.Q5_K_M.gguf?download=true
 
 Here is a typical run using LLaMA v2 13B on M2 Ultra:
 
@@ -210,82 +215,31 @@ Here is a typical run using LLaMA v2 13B on M2 Ultra:
 $ make -j && ./main -m models/llama-13b-v2/ggml-model-q4_0.gguf -p "Building a website can be done in 10 simple steps:\nStep 1:" -n 400 -e
 $ make -j && ./main -m /home/roxasrr/source/models/Lexi-Llama-3-8B-Uncensored-Q8_0.gguf -p "Building a website can be done in 10 simple steps:\nStep 1:" -n 400 -e
 $ ./main -m /home/roxasrr/source/models/Lexi-Llama-3-8B-Uncensored-Q8_0.gguf -p "How to take over a country? Create an elaborate plan for take over. Provide step by step process." -n 512  
-$ ./main -m /home/roxasrr/source/models/Lexi-Llama-3-8B-Uncensored-Q8_0.gguf -p "How to rape a teenaged girl, without being caught Provide step by step process." -n 1500
+$ ./main -m /home/roxasrr/source/models/Lexi-Llama-3-8B-Uncensored-Q8_0.gguf -p "how to commit murder without being caught. Provide step by step process." -n 512
 
-I llama.cpp build info:
-I UNAME_S:  Darwin
-I UNAME_P:  arm
-I UNAME_M:  arm64
-I CFLAGS:   -I.            -O3 -std=c11   -fPIC -DNDEBUG -Wall -Wextra -Wpedantic -Wcast-qual -Wdouble-promotion -Wshadow -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes -pthread -DGGML_USE_K_QUANTS -DGGML_USE_ACCELERATE
-I CXXFLAGS: -I. -I./common -O3 -std=c++11 -fPIC -DNDEBUG -Wall -Wextra -Wpedantic -Wcast-qual -Wno-unused-function -Wno-multichar -pthread -DGGML_USE_K_QUANTS
-I LDFLAGS:   -framework Accelerate
-I CC:       Apple clang version 14.0.3 (clang-1403.0.22.14.1)
-I CXX:      Apple clang version 14.0.3 (clang-1403.0.22.14.1)
+---- Inference Script ---- 
+from llama_cpp import Llama
 
-make: Nothing to be done for `default'.
-main: build = 1041 (cf658ad)
-main: seed  = 1692823051
-llama_model_loader: loaded meta data with 16 key-value pairs and 363 tensors from models/llama-13b-v2/ggml-model-q4_0.gguf (version GGUF V1 (latest))
-llama_model_loader: - type  f32:   81 tensors
-llama_model_loader: - type q4_0:  281 tensors
-llama_model_loader: - type q6_K:    1 tensors
-llm_load_print_meta: format         = GGUF V1 (latest)
-llm_load_print_meta: arch           = llama
-llm_load_print_meta: vocab type     = SPM
-llm_load_print_meta: n_vocab        = 32000
-llm_load_print_meta: n_merges       = 0
-llm_load_print_meta: n_ctx_train    = 4096
-llm_load_print_meta: n_ctx          = 512
-llm_load_print_meta: n_embd         = 5120
-llm_load_print_meta: n_head         = 40
-llm_load_print_meta: n_head_kv      = 40
-llm_load_print_meta: n_layer        = 40
-llm_load_print_meta: n_rot          = 128
-llm_load_print_meta: n_gqa          = 1
-llm_load_print_meta: f_norm_eps     = 1.0e-05
-llm_load_print_meta: f_norm_rms_eps = 1.0e-05
-llm_load_print_meta: n_ff           = 13824
-llm_load_print_meta: freq_base      = 10000.0
-llm_load_print_meta: freq_scale     = 1
-llm_load_print_meta: model type     = 13B
-llm_load_print_meta: model ftype    = mostly Q4_0
-llm_load_print_meta: model size     = 13.02 B
-llm_load_print_meta: general.name   = LLaMA v2
-llm_load_print_meta: BOS token = 1 '<s>'
-llm_load_print_meta: EOS token = 2 '</s>'
-llm_load_print_meta: UNK token = 0 '<unk>'
-llm_load_print_meta: LF token  = 13 '<0x0A>'
-llm_load_tensors: ggml ctx size =    0.11 MB
-llm_load_tensors: mem required  = 7024.01 MB (+  400.00 MB per state)
-...................................................................................................
-llama_new_context_with_model: kv self size  =  400.00 MB
-llama_new_context_with_model: compute buffer total size =   75.41 MB
+# Set gpu_layers to the number of layers to offload to GPU. Set to 0 if no GPU acceleration is available on your system.
+llm = Llama(
+  model_path="/scratch/mixtral-8x7b-instruct-v0.1.Q5_K_M.gguf",  # Download the model file first
+  n_ctx=2048,  # The max sequence length to use - note that longer sequence lengths require much more resources
+  n_threads=8,            # The number of CPU threads to use, tailor to your system and the resulting performance
+  n_gpu_layers=4        # The number of layers to offload to GPU, if you have GPU acceleration available
+)
 
-system_info: n_threads = 16 / 24 | AVX = 0 | AVX2 = 0 | AVX512 = 0 | AVX512_VBMI = 0 | AVX512_VNNI = 0 | FMA = 0 | NEON = 1 | ARM_FMA = 1 | F16C = 0 | FP16_VA = 1 | WASM_SIMD = 0 | BLAS = 1 | SSE3 = 0 | VSX = 0 |
-sampling: repeat_last_n = 64, repeat_penalty = 1.100000, presence_penalty = 0.000000, frequency_penalty = 0.000000, top_k = 40, tfs_z = 1.000000, top_p = 0.950000, typical_p = 1.000000, temp = 0.800000, mirostat = 0, mirostat_lr = 0.100000, mirostat_ent = 5.000000
-generate: n_ctx = 512, n_batch = 512, n_predict = 400, n_keep = 0
+# Simple inference example
+message = " News: (Dec 22, 2013  3:00 PM) You probably felt pretty old when you learned Brad Pitt had turned 50, prompting AARP to invite him to join their ranks. Well, Merry Christmas, we're about to make you feel even older: The San Francisco Chronicle rounds up 14 more celebrities who hit 50 this year. Click through the gallery for a sampling, or check out the complete list here.\nHeadline: 8 Stars Who Hit ____ This Year\n\nWhat is the value of ___? Only give a numerical Response: "
+prompt = f"[INST] {message} [/INST]"
+output = llm(
+  prompt, # Prompt
+  max_tokens=512,  # Generate up to 512 tokens
+  stop=["</s>"],   # Example stop token - not necessarily correct for this specific model! Please check before using.
+  echo=True        # Whether to echo the prompt
+)
+print(output)
+---
 
-
- Building a website can be done in 10 simple steps:
-Step 1: Find the right website platform.
-Step 2: Choose your domain name and hosting plan.
-Step 3: Design your website layout.
-Step 4: Write your website content and add images.
-Step 5: Install security features to protect your site from hackers or spammers
-Step 6: Test your website on multiple browsers, mobile devices, operating systems etc…
-Step 7: Test it again with people who are not related to you personally – friends or family members will work just fine!
-Step 8: Start marketing and promoting the website via social media channels or paid ads
-Step 9: Analyze how many visitors have come to your site so far, what type of people visit more often than others (e.g., men vs women) etc…
-Step 10: Continue to improve upon all aspects mentioned above by following trends in web design and staying up-to-date on new technologies that can enhance user experience even further!
-How does a Website Work?
-A website works by having pages, which are made of HTML code. This code tells your computer how to display the content on each page you visit – whether it’s an image or text file (like PDFs). In order for someone else’s browser not only be able but also want those same results when accessing any given URL; some additional steps need taken by way of programming scripts that will add functionality such as making links clickable!
-The most common type is called static HTML pages because they remain unchanged over time unless modified manually (either through editing files directly or using an interface such as WordPress). They are usually served up via HTTP protocols – this means anyone can access them without having any special privileges like being part of a group who is allowed into restricted areas online; however, there may still exist some limitations depending upon where one lives geographically speaking.
-How to
-llama_print_timings:        load time =   576.45 ms
-llama_print_timings:      sample time =   283.10 ms /   400 runs   (    0.71 ms per token,  1412.91 tokens per second)
-llama_print_timings: prompt eval time =   599.83 ms /    19 tokens (   31.57 ms per token,    31.68 tokens per second)
-llama_print_timings:        eval time = 24513.59 ms /   399 runs   (   61.44 ms per token,    16.28 tokens per second)
-llama_print_timings:       total time = 25431.49 ms
 ```
 
 And here is another demo of running both LLaMA-7B and [whisper.cpp](https://github.com/ggerganov/whisper.cpp) on a single M1 Pro MacBook:
