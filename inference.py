@@ -11,7 +11,7 @@ llm = Llama(
 
 # Simple inference example
 #message = " News: (Dec 22, 2013  3:00 PM) You probably felt pretty old when you learned Brad Pitt had turned 50, prompting AARP to invite him to join their ranks. Well, Merry Christmas, we're about to make you feel even older: The San Francisco Chronicle rounds up 14 more celebrities who hit 50 this year. Click through the gallery for a sampling, or check out the complete list here.\nHeadline: 8 Stars Who Hit ____ This Year\n\nWhat is the value of ___? Only give a numerical Response: "
-message = " News: (May 17, 2024) Michael Cohen COLLAPSES During CROSS after ADMITTING to LYING Under Oath Click through the gallery for a sampling, or check out the complete list here.\nHeadline: 8 Stars Who Hit ____ This Year\n\nWhat is the value of ___? Only give a numerical Response: "
+message = " News: (May 17, 2024) Michael Cohen COLLAPSES During CROSS after ADMITTING to LYING Under Oath. Click through the gallery for a sampling, or check out the complete list here.\nHeadline: 8 Stars Who Hit ____ This Year\n\nWhat is the value of ___? Only give a numerical Response: "
 prompt = f"[INST] {message} [/INST]"
 output = llm(
   prompt, # Prompt
